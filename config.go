@@ -98,6 +98,8 @@ type Config struct {
 	CoinmarketcapRequestTimeout time.Duration
 	// Cache price value for a duration
 	CoinmarketcapCacheDuration time.Duration
+
+	DBConnectionString string
 }
 
 var DefaultConfig = Config{

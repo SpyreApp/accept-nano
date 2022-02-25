@@ -9,7 +9,7 @@ You can use it independently or together with it's web client [accept-nano-clien
 ## Installing
 
 There are several options:
- - Download the latest binary from [releases page](https://github.com/accept-nano/accept-nano/releases)
+ - Download the latest binary from [releases page](https://github.com/SpyreApp/accept-nano/releases)
  - Pull Docker image: `docker pull acceptnano/acceptnano`
  - Compile from source: `go get -u github.com/accept-nano/accept-nano`
 
@@ -77,7 +77,7 @@ services:
 ## Config
 
  - Config is written in TOML or YAML format.
- - The structure of config file is defined in [config.go](https://github.com/accept-nano/accept-nano/blob/master/config.go). See comments for field descriptions.
+ - The structure of config file is defined in [config.go](https://github.com/SpyreApp/accept-nano/blob/master/config.go). See comments for field descriptions.
  - All of the configuration options can be overriden with `ACCEPTNANO_` prefixed environment variables. This makes configuring the Docker container easier.
 
 ### Example config.toml

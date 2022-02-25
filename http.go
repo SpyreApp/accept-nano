@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/accept-nano/accept-nano/internal/hub"
-	"github.com/accept-nano/accept-nano/internal/units"
+	"github.com/SpyreApp/accept-nano/internal/hub"
+	"github.com/SpyreApp/accept-nano/internal/units"
 	"github.com/cenkalti/log"
 	"github.com/rs/cors"
 	"github.com/shopspring/decimal"
