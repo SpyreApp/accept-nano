@@ -408,6 +408,7 @@ func (p *Payment) receivePending() error {
 
 type State struct {
 	Creator string `json:"creator"`
+	Type    string `json:"type"`
 }
 
 type userMeta struct {
@@ -475,11 +476,14 @@ func (p *Payment) sendToMerchant() error {
 	}
 
 	// Unmarshal the state from the transaction
-	var state State
+	var state = State{
+		Type:    "Topup",
+		Creator: "",
+	}
 	json.Unmarshal([]byte(p.State), &state)
 
 	// If there's a creator, process a transaction fee
-	if state.Creator != "" {
+	if state.Type == "Sub" && state.Creator != "" {
 		// Connect to the DB
 		if db, err = sql.Open("postgres", config.DBConnectionString); err != nil {
 			return err
@@ -520,7 +524,6 @@ func (p *Payment) sendToMerchant() error {
 		// Otherwise assume it's a donation
 		return sendAll(p.account, config.Account, key.Private)
 	}
-
 }
 
 func (p *Payment) notifyMerchant() error {
