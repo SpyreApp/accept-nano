@@ -415,7 +415,7 @@ type userMeta struct {
 	Fee int64 `json:"fee"`
 }
 
-func getUser(db *sql.DB, id string) (err error, user string, fee int64) {
+func getUser(db *sql.DB, id string) (user string, fee int64, err error) {
 	fee = 12
 
 	row := db.QueryRow(`SELECT id, raw_user_meta_data FROM auth.users WHERE id = $1`, id)
@@ -425,40 +425,40 @@ func getUser(db *sql.DB, id string) (err error, user string, fee int64) {
 
 	// Handle if no row was returned
 	if row == nil {
-		err = errors.New("User not found")
-		return err, user, fee
+		err = errors.New("user not found")
+		return user, fee, err
 	}
 
 	// Get the user_meta from the row
 	if err = row.Scan(&user, &user_meta_json); err != nil {
-		return err, user, fee
+		return user, fee, err
 	}
 
 	// Unmarshal the JSON object
 	if err = json.Unmarshal([]byte(user_meta_json), &user_meta); err != nil {
-		return err, user, fee
+		return user, fee, err
 	}
 
 	if user_meta.Fee != 0 {
 		fee = user_meta.Fee
 	}
 
-	return err, user, fee
+	return user, fee, err
 }
 
-func getUserCrypto(db *sql.DB, user_id string) (err error, address string) {
+func getUserCrypto(db *sql.DB, user_id string) (address string, err error) {
 	row := db.QueryRow(`SELECT address FROM user_crypto WHERE user_crypto.user = $1 AND crypto = $2`, user_id, "nano")
 
 	// Handle if no row was returned
 	if row == nil {
-		err = errors.New("User not found")
-		return err, address
+		err = errors.New("user not found")
+		return address, err
 	}
 
 	// Get the user_meta from the row
 	err = row.Scan(&address)
 
-	return err, address
+	return address, err
 }
 
 func (p *Payment) sendToMerchant() error {
@@ -490,13 +490,13 @@ func (p *Payment) sendToMerchant() error {
 		}
 
 		// Get the user_id and the fee (percentage as an integer 0-100)
-		if err, user_id, fee = getUser(db, state.Creator); err != nil {
+		if user_id, fee, err = getUser(db, state.Creator); err != nil {
 			spew.Dump(err)
 			return err
 		}
 
 		// Get the crypto address for the user
-		if err, address = getUserCrypto(db, user_id); err != nil {
+		if address, err = getUserCrypto(db, user_id); err != nil {
 			spew.Dump(err)
 			return err
 		}
