@@ -13,7 +13,6 @@ import (
 	"github.com/SpyreApp/accept-nano/internal/nano"
 	"github.com/SpyreApp/accept-nano/internal/units"
 	"github.com/cenkalti/log"
-	"github.com/davecgh/go-spew/spew"
 	_ "github.com/lib/pq"
 	"github.com/shopspring/decimal"
 	"go.etcd.io/bbolt"
@@ -463,12 +462,12 @@ func getUserCrypto(db *sql.DB, user_id string) (address string, err error) {
 
 func (p *Payment) sendToMerchant() error {
 	var (
-		key     *nano.Key
-		db      *sql.DB
-		user_id string
-		fee     int64
-		address string
-		err     error
+		key *nano.Key
+		// db      *sql.DB
+		// user_id string
+		// fee     int64
+		// address string
+		err error
 	)
 
 	if key, err = node.DeterministicKey(config.Seed, p.Index); err != nil {
@@ -476,54 +475,54 @@ func (p *Payment) sendToMerchant() error {
 	}
 
 	// Unmarshal the state from the transaction
-	var state = State{
-		Type:    "Topup",
-		Creator: "",
-	}
-	json.Unmarshal([]byte(p.State), &state)
+	// var state = State{
+	// 	Type:    "Topup",
+	// 	Creator: "",
+	// }
+	// json.Unmarshal([]byte(p.State), &state)
 
 	// If there's a creator, process a transaction fee
-	if state.Type == "Sub" && state.Creator != "" {
-		// Connect to the DB
-		if db, err = sql.Open("postgres", config.DBConnectionString); err != nil {
-			return err
-		}
+	// if state.Type == "Sub" && state.Creator != "" {
+	// Connect to the DB
+	// if db, err = sql.Open("postgres", config.DBConnectionString); err != nil {
+	// 	return err
+	// }
 
-		// Get the user_id and the fee (percentage as an integer 0-100)
-		if user_id, fee, err = getUser(db, state.Creator); err != nil {
-			spew.Dump(err)
-			return err
-		}
+	// Get the user_id and the fee (percentage as an integer 0-100)
+	// if user_id, fee, err = getUser(db, state.Creator); err != nil {
+	// 	spew.Dump(err)
+	// 	return err
+	// }
 
-		// Get the crypto address for the user
-		if address, err = getUserCrypto(db, user_id); err != nil {
-			spew.Dump(err)
-			return err
-		}
+	// Get the crypto address for the user
+	// if address, err = getUserCrypto(db, user_id); err != nil {
+	// 	spew.Dump(err)
+	// 	return err
+	// }
 
-		// Get the account info for the payment address so we have the balance
-		info, err := node.AccountInfo(p.account)
-		if err != nil {
-			return err
-		}
-		if info.Balance.IsZero() {
-			return nil
-		}
+	// Get the account info for the payment address so we have the balance
+	// info, err := node.AccountInfo(p.account)
+	// if err != nil {
+	// 	return err
+	// }
+	// if info.Balance.IsZero() {
+	// 	return nil
+	// }
 
-		fee_decimal := decimal.NewFromInt(fee).Div(decimal.NewFromInt(100))
+	// fee_decimal := decimal.NewFromInt(fee).Div(decimal.NewFromInt(100))
 
-		account_remaining := info.Balance.Sub(info.Balance.Mul(fee_decimal))
+	// account_remaining := info.Balance.Sub(info.Balance.Mul(fee_decimal))
 
-		if err = sendTax(p.account, config.Account, key.Private, account_remaining); err != nil {
-			spew.Dump(err)
-			return err
-		}
+	// if err = sendTax(p.account, config.Account, key.Private, account_remaining); err != nil {
+	// 	spew.Dump(err)
+	// 	return err
+	// }
 
-		return sendAll(p.account, address, key.Private)
-	} else {
-		// Otherwise assume it's a donation
-		return sendAll(p.account, config.Account, key.Private)
-	}
+	// 	return sendAll(p.account, address, key.Private)
+	// } else {
+	// Otherwise assume it's a donation
+	return sendAll(p.account, config.Account, key.Private)
+	// }
 }
 
 func (p *Payment) notifyMerchant() error {
